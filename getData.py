@@ -1,12 +1,11 @@
 #!/usr/bin/python
 
-from requests import Request, Session
+from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import sys
 import csv
-from datetime import datetime, timedelta
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 4:
     print('Invalid argument')
     sys.exit()
 
@@ -67,8 +66,7 @@ try:
     for symbol in symbols:
         with open('data/' + symbol.get('symbol_id') + '.csv', 'w') as file:
 
-            #date = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00")
-            ohlcvParams = {'period_id': '1MTH', 'time_start': "2021-01-01T00:00:00"}
+            ohlcvParams = {'period_id': sys.argv[2], 'time_start': "2021-01-01T00:00:00", 'limit': sys.argv[3]}
             print(urlOHLCV + symbol.get('symbol_id') + '/history')
             print(ohlcvParams)
             response = session.get(urlOHLCV + symbol.get('symbol_id') + '/history', params=ohlcvParams)
@@ -79,19 +77,10 @@ try:
 
             try:
                 responseJson = response.json()
-                #fieldnames = ['time_period_start', 'time_period_end', 'price_open', 'price_high', 'price_low', 'price_close']
                 fieldnames = responseJson[0].keys()
                 file_writer = csv.DictWriter(file, fieldnames=fieldnames)
                 file_writer.writeheader()
                 for data in responseJson:
-                    #json = {
-                    #    "time_period_start":  data["time_period_start"],
-                    #    "time_period_end":  data["time_period_end"],
-                    #    "price_open":  data["price_open"],
-                    #    "price_high":  data["price_high"],
-                    #    "price_low":  data["price_low"],
-                    #    "price_close":  data["price_close"]
-                    #}
                     file_writer.writerow(data)
             except KeyError:
                 pass
