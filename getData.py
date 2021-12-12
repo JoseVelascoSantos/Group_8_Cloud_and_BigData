@@ -62,7 +62,7 @@ try:
                 symbols.append(_symbol)
                 break
 
-    # Get all OHLCV from symbols with 1 year range
+    # Get all OHLCV from symbols with custom
     for symbol in symbols:
         with open('data/' + symbol.get('symbol_id') + '.csv', 'w') as file:
 
