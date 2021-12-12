@@ -1,18 +1,24 @@
+from os import listdir
+from os.path import isfile, join
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
-from pyspark.sql.functions import col, lit, when, monotonically_increasing_id
-import re
+from pyspark.sql.functions import col, monotonically_increasing_id
 
+#Añade la columna Index y almacena el resultado de seleccionar las columnas con las que se va a operar.
 
 c=SparkConf()
 spark = SparkSession.builder.config(conf=c).appName("filter").getOrCreate()
 
-df = spark.read.option("header", "true").csv("Archivos sin filtrar/Histórico-Ethereum(ETH).csv")
-df=df.withColumn("Index",monotonically_increasing_id())\
-.withColumnRenamed("Último", "Ultimo")\
-.withColumnRenamed("Máximo", "Maximo")\
-.withColumnRenamed("Mínimo", "Minimo")\
-.withColumnRenamed("% var.", "Var")\
-.select(col("Index"), col("Fecha"), col("Ultimo"), col("Apertura"), col("Maximo"), col("Minimo"), col("Var"), df.Fecha[7:4].alias("Year"), df.Fecha[4:2].alias("Month"), df.Fecha[1:2].alias("Day"))
+onlyfiles = [f for f in listdir("./StaticFiles/SinProcesar") if isfile(join("./StaticFiles/SinProcesar", f))]
 
-df.repartition(1).write.option("header","true").csv("Ethereum-SparkFilter")
+for i in onlyfiles:
+    df = spark.read.option("header", "true").csv( f"./StaticFiles/SinProcesar/{i}")
+    df=df.withColumn("Index",monotonically_increasing_id())\
+    .withColumnRenamed("Último", "Ultimo")\
+    .withColumnRenamed("Máximo", "Maximo")\
+    .withColumnRenamed("Mínimo", "Minimo")\
+    .withColumnRenamed("% var.", "Var")\
+    .select(col("Index"), col("Fecha"), col("Ultimo"), col("Apertura"), col("Maximo"), col("Minimo"), col("Var"), df.Fecha[7:4].alias("Year"), df.Fecha[4:2].alias("Month"), df.Fecha[1:2].alias("Day"))
+
+    #Una vez almacenado el fichero, es necesario renombrarlo y extraerlo a la carpeta anterior
+    df.repartition(1).write.option("header","true").csv(f"./StaticFiles/PrimerProcesado/{i}")

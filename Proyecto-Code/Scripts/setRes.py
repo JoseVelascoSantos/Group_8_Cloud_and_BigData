@@ -2,7 +2,7 @@ from os import listdir
 from os.path import isfile, join
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
-from pyspark.sql.functions import lit, when, col
+from pyspark.sql.functions import lit, col, monotonically_increasing_id
 import re
 
 #time_period_start,time_period_end,time_open,time_close,price_open,price_high,price_low,price_close,volume_traded,trades_count
@@ -15,7 +15,7 @@ c=SparkConf()
 spark = SparkSession.builder.config(conf=c).appName("ProcessData").getOrCreate()
 spark.sparkContext.setLogLevel('WARN')
 
-onlyfiles = [f for f in listdir("./data-csv") if isfile(join("./data-csv", f))]
+onlyfiles = [f for f in listdir("./DinamicFiles") if isfile(join("./DinamicFiles", f))]
 
 df_rec_max=None
 df_rec_min=None
@@ -23,15 +23,16 @@ df_rec_avg=None
 
 for i in onlyfiles:
 
-    df = spark.read.option("header", "true").csv( f"data-csv/{i}")
+    df = spark.read.option("header", "true").csv( f"DinamicFiles/{i}")
     df = df.select(df.price_high, df.price_low, df.price_close, df.time_period_start)
     df = df.withColumn("Nombre", lit(re.sub(r'BINANCE_SPOT_', '', re.sub(r'.csv', '', str(i)))))
-    df=df.withColumn('price_high', col('price_high').cast('float'))\
+    df=df.withColumn("Index",monotonically_increasing_id())\
+    .withColumn('price_high', col('price_high').cast('float'))\
     .withColumn('price_low', col('price_low').cast('float'))\
     .withColumn('price_close', col('price_close').cast('float'))\
     .withColumn('Month', col('time_period_start')[6:2])
 
-    df=df.withColumn('Month', col('Month').cast('int'))
+    df=df.withColumn('Month', col('Month').cast('int')).withColumn('Index', col('Index').cast('int'))
 
     #Maximo pico
     df_max_maximo=df.agg({"price_high": "max"})
@@ -45,7 +46,6 @@ for i in onlyfiles:
     df_avg_close=df.groupBy('Nombre').agg({"price_close": "avg"})
     df_avg_close=df_avg_close.withColumn('Media', col('avg(price_close)').cast('float'))
     df_avg_close=df_avg_close.select(df_avg_close.Nombre, df_avg_close.Media)
-
 
     if df_rec_max is None:
         df_rec_max=df_max_maximo
