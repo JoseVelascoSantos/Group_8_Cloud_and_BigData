@@ -3,6 +3,7 @@ from os.path import isfile, join
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
 from pyspark.sql.functions import col
+import time
 
 #Procesa los ficheros "estáticos" mediante Spark
 
@@ -10,6 +11,7 @@ c=SparkConf()
 spark = SparkSession.builder.config(conf=c).appName("ProcessData").getOrCreate()
 spark.sparkContext.setLogLevel('WARN')
 
+start_time=time.time()
 onlyfiles = [f for f in listdir("./StaticFiles/SegundoProcesado") if isfile(join("./StaticFiles/SegundoProcesado", f))]
 
 for i in onlyfiles:
@@ -69,7 +71,4 @@ for i in onlyfiles:
     df_avg_month.sort(col('Year').desc(), col('Month').desc()).show()
     df_high_values.sort(col('Index').asc()).show()
 
-    #df_max_ultimo.repartition(1).write.option("header","true").csv("Ethereum/Max-Cierre-Ethereum")
-    #df_min_ultimo.repartition(1).write.option("header","true").csv("Ethereum/Min-Cierre-Ethereum")
-    #df_max_maximo.repartition(1).write.option("header","true").csv("Ethereum/Max-Maximos-Ethereum")
-    #sqlDF.repartition(1).write.option("header","true").csv("Ethereum/pruebasql")
+print ("It took ", str(time.time()-start_time), " s")
