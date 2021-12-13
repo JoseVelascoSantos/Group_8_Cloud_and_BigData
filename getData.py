@@ -14,62 +14,49 @@ urlSymbols = url + '/v1/symbols/'
 urlOHLCV = url + '/v1/ohlcv/'
 exchanges = ['BINANCE']
 
-headers = {
-    'Accepts': 'application/json',
-    'X-CoinAPI-Key': sys.argv[1],
-}
-
 session = Session()
-session.headers.update(headers)
 
 try:
-    dictionary = {}
+    symbols = [
+        'BINANCE_SPOT_XEC_BUSD',
+        'BINANCE_SPOT_XEM_BUSD',
+        'BINANCE_SPOT_XVG_BUSD',
+        'BINANCE_SPOT_YGG_BUSD',
+        'BINANCE_SPOT_ZEN_BUSD'
+    ]
 
-    # Get all symbols
-    with open('symbols.csv', mode='w') as file:
-        fieldnames = ['exchange', 'id', 'data_start']
-        file_writer = csv.DictWriter(file, fieldnames=fieldnames)
-        file_writer.writeheader()
+    keys = [
+        'EBCCCA2D-D3CE-4D8B-AF16-4724FC2989DF',
+        '5A366079-ABE2-44DC-B169-571E45737F88',
+        '1E248DED-102B-428F-950C-089BF8370349'
+    ]
 
-        for exchange in exchanges:
-            response = session.get(urlSymbols, params={'filter_exchange_id': exchange})
-            responseJson = response.json()
-            if response.status_code != 200:
-                print('API error: ' + responseJson["error"])
-                sys.exit()
+    i = -1
+    keyIndex = 0
 
-            try:
-                for token in responseJson:
-                    json = {
-                        "exchange":  exchange,
-                        'id': token["symbol_id"],
-                        'data_start': token["data_start"]
-                    }
-                    file_writer.writerow(json)
-                    if token["asset_id_base"] in dictionary:
-                        dictionary[token["asset_id_base"]].append(token)
-                    else:
-                        dictionary.update({token["asset_id_base"]: [token]})
-            except KeyError:
-                pass
-
-    symbols = []
-    for key in dictionary:
-        symbol = {}
-        for _symbol in dictionary.get(key):
-            if _symbol["data_start"].split("-")[0] == '2021' and (_symbol["asset_id_quote"] == 'USDT' or _symbol["asset_id_quote"] == 'USDC' or _symbol["asset_id_quote"] == 'BUSD' or _symbol["asset_id_quote"] == 'UST'):
-                symbol = _symbol
-                symbols.append(_symbol)
-                break
+    session.headers.update({
+        'Accepts': 'application/json',
+        'X-CoinAPI-Key': keys[keyIndex],
+    })
 
     # Get all OHLCV from symbols with custom
     for symbol in symbols:
-        with open('data/' + symbol.get('symbol_id') + '.csv', 'w') as file:
+        if i == 2:
+            i = 0
+            keyIndex += 1
+            session.headers.update({
+                'Accepts': 'application/json',
+                'X-CoinAPI-Key': keys[keyIndex],
+            })
+        else:
+            i += 1
 
-            ohlcvParams = {'period_id': sys.argv[2], 'time_start': "2021-01-01T00:00:00", 'limit': sys.argv[3]}
-            print(urlOHLCV + symbol.get('symbol_id') + '/history')
-            print(ohlcvParams)
-            response = session.get(urlOHLCV + symbol.get('symbol_id') + '/history', params=ohlcvParams)
+        print(symbol)
+        print(keys[keyIndex])
+        with open('data/' + symbol + '.csv', 'w') as file:
+
+            ohlcvParams = {'period_id': '15MIN', 'time_start': "2021-01-01T00:00:00", 'limit': 100000}
+            response = session.get(urlOHLCV + symbol + '/history', params=ohlcvParams)
             print(response)
             if response.status_code != 200:
                 print('API error')
