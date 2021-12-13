@@ -11,6 +11,9 @@
 ![Static files](./website/images/Static%20files.svg)
 ![Dynamic files](./website/images/Dynamic%20files.svg)
 
+(VM details: 4 vCPU 3.6GB memory)
+(PC details: 4 CPU 16GB memory)
+
 ## Conclusions
 In static files you can see an advantage of processing in a VM with Spark compared to a PC with Spark.
 As the number of files increases, the greater the difference in time required to achieve processing.
