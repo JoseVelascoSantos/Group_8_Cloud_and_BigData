@@ -1,5 +1,9 @@
 # Group 8 Cloud and BigData
 
+
+| [Website](https://josevelascosantos.github.io/Group_8_Cloud_and_BigData/website/) |
+| ----------- |
+
 ## How does static data processing work?
 ![Static file diagram](./website/images/Diagrama%20estático.png)
 
