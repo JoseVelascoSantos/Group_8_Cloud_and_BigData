@@ -13,8 +13,6 @@
 
 ## Commands
 In order to use the application you should execute the following commands:  
-![Parameters getDATA.py 1](./website/images/parametrosGETAPI-1.png)
-![Parameters getDATA.py 2](./website/images/parametrosGETAPI-2.png)  
 
 ->python3 ./getData.py <API-KEY> <PERIOD> <RESPONSE_LIMIT>  
 
