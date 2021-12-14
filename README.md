@@ -23,7 +23,7 @@ In order to use the application you should execute the following commands:
 
 In order to use the application you should execute the following commands:  
 
-1. spark-submit filtre.py
+1. spark-submit filter.py
 2. python pandasfilter.py
 3. spark-submit process.py
 
