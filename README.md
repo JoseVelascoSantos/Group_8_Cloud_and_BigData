@@ -12,14 +12,20 @@
 ![Dynamic file diagram](./website/images/Diagrama%20dinámico.png)
 
 ## Commands
+### Dynamic
 In order to use the application you should execute the following commands:  
 
-->python3 ./getData.py <API-KEY> <PERIOD> <RESPONSE_LIMIT>  
+1. python3 ./getData.py <API-KEY> <PERIOD> <RESPONSE_LIMIT>  
+2. spark-submit days_setRes.py  
+3. spark-submit getAVGs.py
+  
+### Static
 
-->spark-submit days_setRes.py  
+In order to use the application you should execute the following commands:  
 
-->spark-submit getAVGs.py  
-
+1. spark-submit filtre.py
+2. python pandasfilter.py
+3. spark-submit process.py
 
 ## Performance
 ![Static files](./website/images/Static%20files.svg)
