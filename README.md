@@ -12,7 +12,8 @@
 ![Dynamic file diagram](./website/images/Diagrama%20dinámico.png)
 
 ## Commands
-In order to use the application you should execute the following commands:
+In order to use the application you should execute the following commands:  
+
 -> python3 ./getData.py <API-KEY> <PERIOD> <RESPONSE_LIMIT>  
 
 -> spark-submit days_setRes.py  
